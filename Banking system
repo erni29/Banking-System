@@ -1,0 +1,144 @@
+
+customer_name = "Sarah"
+customer_pin = "5677"
+customer_balance = 0.00
+
+bank_accounts = {
+    "Alice": 3000.00,
+    "Bob": 5500.00,
+    "Charlie": 2200.00,
+    "David": 1500.00
+}
+
+print("=" * 50)
+print("WELCOME TO ICICI BANK")
+print("=" * 50)
+wrong_attempts = 0
+authenticated = False
+
+print("\nPLEASE LOGIN TO YOUR ACCOUNT")
+print("-" * 50)
+
+while wrong_attempts < 3:
+    entered_name = input("Enter your name: ")
+    entered_pin = input("Enter your PIN: ")
+    
+    if entered_name == customer_name and entered_pin == customer_pin:
+        authenticated = True
+        print("\n✓ Authentication successful!")
+        break
+    else:
+        wrong_attempts = wrong_attempts + 1
+        if wrong_attempts < 3:
+            print("✗ Wrong name or PIN. Try again.")
+            print("Attempts remaining: " + str(3 - wrong_attempts))
+        else:
+            print("\n✗ ACCOUNT TEMPORARILY BLOCKED!")
+            print("You entered wrong PIN 3 times.")
+            print("Please contact the bank for assistance.")
+
+
+if authenticated == False:
+    print("\nExiting the system...")
+    exit()
+
+while True:
+    print("\n" + "=" * 50)
+    print("ACCOUNT SUMMARY")
+    print("=" * 50)
+    print("Customer Name: " + customer_name)
+    print("Current Balance: $" + str(customer_balance))
+    print("=" * 50)
+    
+    print("\nWHAT WOULD YOU LIKE TO DO?")
+    print("-" * 50)
+    print("1. Deposit Money")
+    print("2. Withdrawal Money")
+    print("3. Transfer Money")
+    print("4. Exit")
+    print("-" * 50)
+    
+    choice = input("Enter your choice (1/2/3/4): ")
+    
+    if choice == "1":
+        print("\n" + "-" * 50)
+        print("DEPOSIT MONEY")
+        print("-" * 50)
+        deposit_amount_str = input("Enter amount to deposit: $")
+        deposit_amount = float(deposit_amount_str)
+        
+        if deposit_amount > 0:
+            customer_balance = customer_balance + deposit_amount
+            print("✓ Deposit successful!")
+            print("Amount deposited: $" + str(deposit_amount))
+            print("New balance: $" + str(customer_balance))
+        else:
+            print("✗ Invalid amount. Please enter a positive number.")
+  
+    elif choice == "2":
+        print("\n" + "-" * 50)
+        print("WITHDRAWAL MONEY")
+        print("-" * 50)
+        print("Current balance: $" + str(customer_balance))
+        withdrawal_amount_str = input("Enter amount to withdraw: $")
+        withdrawal_amount = float(withdrawal_amount_str)
+        
+        if withdrawal_amount > 0:
+            if withdrawal_amount <= customer_balance:
+                customer_balance = customer_balance - withdrawal_amount
+                print("✓ Withdrawal successful!")
+                print("Amount withdrawn: $" + str(withdrawal_amount))
+                print("New balance: $" + str(customer_balance))
+            else:
+                print("✗ Insufficient balance!")
+                print("Your current balance: $" + str(customer_balance))
+                print("Withdrawal amount: $" + str(withdrawal_amount))
+        else:
+            print("✗ Invalid amount. Please enter a positive number.")
+    
+    elif choice == "3":
+        print("\n" + "-" * 50)
+        print("TRANSFER MONEY")
+        print("-" * 50)
+        print("Available accounts to transfer to:")
+        print("-" * 50)
+        
+        account_number = 1
+        for account_name in bank_accounts:
+            print(str(account_number) + ". " + account_name + " - Balance: $" + str(bank_accounts[account_name]))
+            account_number = account_number + 1
+        
+        print("-" * 50)
+        print("Current balance: $" + str(customer_balance))
+        recipient_name = input("Enter recipient name: ")
+        
+        if recipient_name in bank_accounts:
+            transfer_amount_str = input("Enter amount to transfer: $")
+            transfer_amount = float(transfer_amount_str)
+            
+            if transfer_amount > 0:
+                if transfer_amount <= customer_balance:
+                    customer_balance = customer_balance - transfer_amount
+                    bank_accounts[recipient_name] = bank_accounts[recipient_name] + transfer_amount
+                    print("✓ Transfer successful!")
+                    print("Transferred to: " + recipient_name)
+                    print("Amount transferred: $" + str(transfer_amount))
+                    print("New balance: $" + str(customer_balance))
+                else:
+                    print("✗ Insufficient balance!")
+                    print("Your current balance: $" + str(customer_balance))
+                    print("Transfer amount: $" + str(transfer_amount))
+            else:
+                print("✗ Invalid amount. Please enter a positive number.")
+        else:
+            print("✗ Recipient name not found!")
+    
+
+    elif choice == "4":
+        print("\n" + "=" * 50)
+        print("Thank you for using ICICI Bank!")
+        print("=" * 50)
+        break
+    
+    else:
+        print("✗ Invalid choice. Please enter 1, 2, 3, or 4.")
