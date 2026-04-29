@@ -1,0 +1,272 @@
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+from tkinter import ttk
+customer_name = "Sarah"
+customer_pin = "5677"
+customer_balance = 0.00
+bank_accounts = {
+    "Alice": 3000.00,
+    "Bob": 5500.00,
+    "Charlie": 2200.00
+}
+
+current_user_balance = customer_balance
+login_attempts = 0
+authenticated = False
+main_window = None
+login_window = None
+def create_login_window():
+    global login_window, login_attempts
+    
+    login_window = tk.Tk()
+    login_window.title("ICICI - Login")
+    login_window.geometry("400x300")
+    login_window.configure(bg="#f0f0f0")
+
+    title_label = tk.Label(login_window, text="ICICI BANK", font=("Arial", 24, "bold"), bg="#f0f0f0", fg="#003d7a")
+    title_label.pack(pady=20)
+    
+    subtitle_label = tk.Label(login_window, text="Customer Login", font=("Arial", 14), bg="#f0f0f0", fg="#333")
+    subtitle_label.pack(pady=10)
+    
+    name_label = tk.Label(login_window, text="Name:", font=("Arial", 12), bg="#f0f0f0")
+    name_label.pack(pady=5)
+    
+    name_entry = tk.Entry(login_window, font=("Arial", 12), width=25)
+    name_entry.pack(pady=5)
+    
+    pin_label = tk.Label(login_window, text="PIN:", font=("Arial", 12), bg="#f0f0f0")
+    pin_label.pack(pady=5)
+    
+    pin_entry = tk.Entry(login_window, font=("Arial", 12), width=25, show="*")
+    pin_entry.pack(pady=5)
+    
+    # Attempts label
+    attempts_label = tk.Label(login_window, text=f"Attempts remaining: 3", font=("Arial", 10), bg="#f0f0f0", fg="#d9534f")
+    attempts_label.pack(pady=10)
+    
+    # Login Button
+    def login_click():
+        global login_attempts, authenticated, current_user_balance
+        
+        entered_name = name_entry.get()
+        entered_pin = pin_entry.get()
+        
+        if entered_name == customer_name and entered_pin == customer_pin:
+            authenticated = True
+            current_user_balance = customer_balance
+            login_window.destroy()
+            create_main_window()
+        else:
+            login_attempts = login_attempts + 1
+            
+            if login_attempts < 3:
+                attempts_label.config(text=f"Attempts remaining: {3 - login_attempts}")
+                messagebox.showerror("Login Failed", f"Wrong name or PIN!\nAttempts remaining: {3 - login_attempts}")
+                name_entry.delete(0, tk.END)
+                pin_entry.delete(0, tk.END)
+            else:
+                messagebox.showerror("Account Blocked", "You entered wrong PIN 3 times.\nAccount is temporarily blocked!\nPlease contact the bank.")
+                login_window.destroy()
+                exit()
+    
+    login_button = tk.Button(login_window, text="Login", font=("Arial", 14, "bold"), bg="#5cb85c", fg="white", width=20, command=login_click)
+    login_button.pack(pady=20)
+    
+    login_window.mainloop()
+
+def create_main_window():
+    global main_window, current_user_balance
+    
+    main_window = tk.Tk()
+    main_window.title("ICICI Bank - Dashboard")
+    main_window.geometry("500x600")
+    main_window.configure(bg="#f0f0f0")
+    
+    welcome_label = tk.Label(main_window, text="SIMPLE BANK", font=("Arial", 24, "bold"), bg="#f0f0f0", fg="#003d7a")
+    welcome_label.pack(pady=20)
+    
+    
+    info_frame = tk.Frame(main_window, bg="#e8e8e8", relief="sunken", bd=2)
+    info_frame.pack(pady=20, padx=20, fill="x")
+    
+    customer_label = tk.Label(info_frame, text=f"Customer: {customer_name}", font=("Arial", 12), bg="#e8e8e8")
+    customer_label.pack(pady=10)
+    
+    balance_label = tk.Label(info_frame, text=f"Current Balance: ${current_user_balance:.2f}", font=("Arial", 14, "bold"), bg="#e8e8e8", fg="#5cb85c")
+    balance_label.pack(pady=10)
+    
+
+    options_label = tk.Label(main_window, text="Select Transaction Type", font=("Arial", 14, "bold"), bg="#f0f0f0")
+    options_label.pack(pady=10)
+    
+   
+    buttons_frame = tk.Frame(main_window, bg="#f0f0f0")
+    buttons_frame.pack(pady=20)
+
+    def deposit_window():
+        global current_user_balance
+        
+        deposit_win = tk.Toplevel(main_window)
+        deposit_win.title("Deposit Money")
+        deposit_win.geometry("350x250")
+        deposit_win.configure(bg="#f0f0f0")
+        
+        title = tk.Label(deposit_win, text="DEPOSIT MONEY", font=("Arial", 14, "bold"), bg="#f0f0f0", fg="#003d7a")
+        title.pack(pady=15)
+        
+        amount_label = tk.Label(deposit_win, text="Enter amount to deposit:", font=("Arial", 11), bg="#f0f0f0")
+        amount_label.pack(pady=10)
+        
+        amount_entry = tk.Entry(deposit_win, font=("Arial", 12), width=20)
+        amount_entry.pack(pady=10)
+        
+        def process_deposit():
+            global current_user_balance
+            
+            try:
+                amount = float(amount_entry.get())
+                
+                if amount > 0:
+                    current_user_balance = current_user_balance + amount
+                    messagebox.showinfo("Success", f"Deposit successful!\nAmount: ${amount:.2f}\nNew Balance: ${current_user_balance:.2f}")
+                    balance_label.config(text=f"Current Balance: ${current_user_balance:.2f}")
+                    deposit_win.destroy()
+                else:
+                    messagebox.showerror("Error", "Please enter a positive amount.")
+            except ValueError:
+                messagebox.showerror("Error", "Please enter a valid number.")
+        
+        deposit_button = tk.Button(deposit_win, text="Deposit", font=("Arial", 12, "bold"), bg="#5cb85c", fg="white", width=15, command=process_deposit)
+        deposit_button.pack(pady=15)
+    
+    def withdrawal_window():
+        global current_user_balance
+        
+        withdrawal_win = tk.Toplevel(main_window)
+        withdrawal_win.title("Withdrawal Money")
+        withdrawal_win.geometry("350x250")
+        withdrawal_win.configure(bg="#f0f0f0")
+        
+        title = tk.Label(withdrawal_win, text="WITHDRAWAL MONEY", font=("Arial", 14, "bold"), bg="#f0f0f0", fg="#003d7a")
+        title.pack(pady=15)
+        
+        balance_info = tk.Label(withdrawal_win, text=f"Current Balance: ${current_user_balance:.2f}", font=("Arial", 10), bg="#f0f0f0", fg="#666")
+        balance_info.pack(pady=5)
+        
+        amount_label = tk.Label(withdrawal_win, text="Enter amount to withdraw:", font=("Arial", 11), bg="#f0f0f0")
+        amount_label.pack(pady=10)
+        
+        amount_entry = tk.Entry(withdrawal_win, font=("Arial", 12), width=20)
+        amount_entry.pack(pady=10)
+        
+        def process_withdrawal():
+            global current_user_balance
+            
+            try:
+                amount = float(amount_entry.get())
+                
+                if amount > 0:
+                    if amount <= current_user_balance:
+                        current_user_balance = current_user_balance - amount
+                        messagebox.showinfo("Success", f"Withdrawal successful!\nAmount: ${amount:.2f}\nNew Balance: ${current_user_balance:.2f}")
+                        balance_label.config(text=f"Current Balance: ${current_user_balance:.2f}")
+                        withdrawal_win.destroy()
+                    else:
+                        messagebox.showerror("Error", f"Insufficient balance!\nAvailable: ${current_user_balance:.2f}\nRequested: ${amount:.2f}")
+                else:
+                    messagebox.showerror("Error", "Please enter a positive amount.")
+            except ValueError:
+                messagebox.showerror("Error", "Please enter a valid number.")
+        
+        withdraw_button = tk.Button(withdrawal_win, text="Withdraw", font=("Arial", 12, "bold"), bg="#d9534f", fg="white", width=15, command=process_withdrawal)
+        withdraw_button.pack(pady=15)
+    
+    # Transfer Button
+    def transfer_window():
+        global current_user_balance
+        
+        transfer_win = tk.Toplevel(main_window)
+        transfer_win.title("Transfer Money")
+        transfer_win.geometry("400x350")
+        transfer_win.configure(bg="#f0f0f0")
+        
+        title = tk.Label(transfer_win, text="TRANSFER MONEY", font=("Arial", 14, "bold"), bg="#f0f0f0", fg="#003d7a")
+        title.pack(pady=15)
+        
+        balance_info = tk.Label(transfer_win, text=f"Current Balance: ${current_user_balance:.2f}", font=("Arial", 10), bg="#f0f0f0", fg="#666")
+        balance_info.pack(pady=5)
+        
+        # Available accounts
+        accounts_label = tk.Label(transfer_win, text="Available Accounts:", font=("Arial", 11, "bold"), bg="#f0f0f0")
+        accounts_label.pack(pady=10)
+        
+        accounts_text = ""
+        for name in bank_accounts:
+            accounts_text = accounts_text + name + " (${:.2f})\n".format(bank_accounts[name])
+        
+        accounts_info = tk.Label(transfer_win, text=accounts_text, font=("Arial", 10), bg="#f0f0f0", justify="left")
+        accounts_info.pack(pady=5)
+        
+        recipient_label = tk.Label(transfer_win, text="Recipient Name:", font=("Arial", 11), bg="#f0f0f0")
+        recipient_label.pack(pady=5)
+        
+        recipient_entry = tk.Entry(transfer_win, font=("Arial", 12), width=20)
+        recipient_entry.pack(pady=5)
+        
+        amount_label = tk.Label(transfer_win, text="Amount to transfer:", font=("Arial", 11), bg="#f0f0f0")
+        amount_label.pack(pady=5)
+        
+        amount_entry = tk.Entry(transfer_win, font=("Arial", 12), width=20)
+        amount_entry.pack(pady=5)
+        
+        def process_transfer():
+            global current_user_balance
+            
+            try:
+                recipient = recipient_entry.get()
+                amount = float(amount_entry.get())
+                
+                if recipient in bank_accounts:
+                    if amount > 0:
+                        if amount <= current_user_balance:
+                            current_user_balance = current_user_balance - amount
+                            bank_accounts[recipient] = bank_accounts[recipient] + amount
+                            messagebox.showinfo("Success", f"Transfer successful!\nTransferred to: {recipient}\nAmount: ${amount:.2f}\nNew Balance: ${current_user_balance:.2f}")
+                            balance_label.config(text=f"Current Balance: ${current_user_balance:.2f}")
+                            transfer_win.destroy()
+                        else:
+                            messagebox.showerror("Error", f"Insufficient balance!\nAvailable: ${current_user_balance:.2f}\nRequired: ${amount:.2f}")
+                    else:
+                        messagebox.showerror("Error", "Please enter a positive amount.")
+                else:
+                    messagebox.showerror("Error", "Recipient not found!\nPlease check the name.")
+            except ValueError:
+                messagebox.showerror("Error", "Please enter a valid number.")
+        
+        transfer_button = tk.Button(transfer_win, text="Transfer", font=("Arial", 12, "bold"), bg="#0275d8", fg="white", width=15, command=process_transfer)
+        transfer_button.pack(pady=15)
+    
+    # Exit Button
+    def exit_app():
+        if messagebox.askyesno("Exit", "Are you sure you want to exit?"):
+            main_window.destroy()
+    
+    deposit_btn = tk.Button(buttons_frame, text="Deposit", font=("Arial", 12, "bold"), bg="#5cb85c", fg="white", width=20, command=deposit_window)
+    deposit_btn.pack(pady=10)
+    
+    withdrawal_btn = tk.Button(buttons_frame, text="Withdrawal", font=("Arial", 12, "bold"), bg="#d9534f", fg="white", width=20, command=withdrawal_window)
+    withdrawal_btn.pack(pady=10)
+    
+    transfer_btn = tk.Button(buttons_frame, text="Transfer", font=("Arial", 12, "bold"), bg="#0275d8", fg="white", width=20, command=transfer_window)
+    transfer_btn.pack(pady=10)
+    
+    exit_btn = tk.Button(buttons_frame, text="Exit", font=("Arial", 12, "bold"), bg="#666", fg="white", width=20, command=exit_app)
+    exit_btn.pack(pady=10)
+    
+    main_window.mainloop()
+
+
+# Start the application
+if __name__ == "__main__":
+    create_login_window()
